@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "demo:reset": "curl -s -X POST http://localhost:3000/api/demo -H 'content-type: application/json' -d '{\"action\":\"reset\"}'"
+    "demo:reset": "curl -s -X POST http://localhost:3000/api/demo -H 'content-type: application/json' -d '{\"action\":\"reset\"}'",
+    "demo:record": "bun scripts/record-demo.mjs"
   },
   "dependencies": {
     "next": "15.5.21",
@@ -26,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.21",
+    "playwright": "^1.61.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

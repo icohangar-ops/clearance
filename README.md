@@ -4,9 +4,14 @@
 
 Galuxium Nexus V2 submission — a production-shaped SaaS control plane where every high-impact agent action must pass policy + CHP governance before spend executes, with Stripe monetization and a tamper-evident audit ledger.
 
+**Live demo:** [https://clearance-sand.vercel.app](https://clearance-sand.vercel.app)
+
+**Demo video (~2.5 min):** [`docs/demo/clearance-demo.mp4`](docs/demo/clearance-demo.mp4) · [GitHub Release](https://github.com/icohangar-ops/clearance/releases/tag/demo-v1)
+
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel)](https://clearance-sand.vercel.app)
 
 ---
 
@@ -40,22 +45,31 @@ cp .env.example .env
 bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) — or use the live deploy: [https://clearance-sand.vercel.app](https://clearance-sand.vercel.app).
 
-Zero external credentials required. Demo org, agents, and policies seed automatically into `data/clearance-store.json`.
+Zero external credentials required. Demo org, agents, and policies seed automatically into `data/clearance-store.json` (on Vercel, state lives in `/tmp` per instance).
 
-### Demo script (2 minutes)
+### Demo script (2–5 minutes)
 
-1. Open **Dashboard** → Request clearance for `payment.transfer` / `stripe.com` / `$180` → auto-**LOCKED**.
-2. Repeat with `$600` → status `pending_human` → appear in **Approvals**.
-3. Approve → spend meter updates → **Audit** shows chained signatures.
+Recorded walkthrough: [`docs/demo/clearance-demo.mp4`](docs/demo/clearance-demo.mp4) (captions on-screen). Re-record with:
+
+```bash
+bun add -d playwright && bunx playwright install chromium
+BASE_URL=https://clearance-sand.vercel.app bun scripts/record-demo.mjs
+```
+
+Manual path:
+
+1. Open **Dashboard** → Request clearance for `research.query` / `sec.gov` / `$12` → auto-**LOCKED**.
+2. Switch to PayOps → `payment.transfer` / `stripe.com` / `$600` → `pending_human` → **Approvals**.
+3. **Lock approve** → spend meter updates → **Audit** shows chained signatures.
 4. Try vendor `darkweb-market` → **DENIED**.
 5. **Billing** → choose a plan (demo mode updates locally; set Stripe keys for live Checkout).
 
 Demo API key (Research Scout): `clr_live_demo_key_nexus_v2`
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/clearance \
+curl -X POST https://clearance-sand.vercel.app/api/v1/clearance \
   -H "Content-Type: application/json" \
   -H "x-api-key: clr_live_demo_key_nexus_v2" \
   -d '{"action":"research.query","vendor":"sec.gov","amountCents":1200}'
@@ -71,6 +85,22 @@ curl -X POST http://localhost:3000/api/v1/clearance \
 
 Live path: Stripe Checkout Sessions + webhook provisioning (`/api/stripe/webhook`). Without `STRIPE_SECRET_KEY`, billing runs in **demo mode** and updates the local plan.
 
+### Optional live keys
+
+Not configured on the public Vercel deploy yet (demo mode is active):
+
+| Variable | Effect when set on Vercel |
+|----------|---------------------------|
+| `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` | Live Checkout + plan provisioning |
+| `BACKBOARD_API_KEY` | Production memory / RAG hosting |
+
+```bash
+bunx vercel env add STRIPE_SECRET_KEY production
+bunx vercel env add STRIPE_WEBHOOK_SECRET production
+bunx vercel env add BACKBOARD_API_KEY production
+bunx vercel --prod
+```
+
 ## Architecture
 
 | Layer | Implementation |
@@ -79,7 +109,7 @@ Live path: Stripe Checkout Sessions + webhook provisioning (`/api/stripe/webhook
 | API | Route handlers under `/api/*` |
 | Governance | CHP R0 + adversarial findings + lock progression (`src/lib/chp.ts`) |
 | Memory | Namespace retrieval; Backboard-ready via `BACKBOARD_API_KEY` |
-| Persistence | JSON store at `data/clearance-store.json` (swap for Postgres in prod) |
+| Persistence | JSON store (`./data` locally, `/tmp` on Vercel) |
 | Audit | HMAC-SHA256 signature-chained JSONL export |
 | Payments | Stripe Checkout + webhooks |
 
@@ -88,7 +118,8 @@ src/
   app/                  # Landing + console pages + API routes
   components/           # Shell, playground, approvals, billing
   lib/                  # store, chp, clearance, memory, stripe, types
-docs/                   # Executive brief + fiscal blueprint
+docs/                   # Executive brief + fiscal blueprint + demo video
+scripts/record-demo.mjs # Headless demo recorder
 ```
 
 ## Environment
@@ -119,24 +150,25 @@ See [`.env.example`](.env.example).
 
 ## Nexus V2 submission checklist
 
-- [x] Production-ready app (run locally or deploy to Vercel/Fly/Railway)
+- [x] Production-ready app deployed on Vercel: https://clearance-sand.vercel.app
 - [x] Public GitHub + Codeberg repositories with architecture README
 - [x] Operational MVP: clearance → CHP → HITL → meter → audit
 - [x] Executive brief: [`docs/EXECUTIVE_BRIEF.md`](docs/EXECUTIVE_BRIEF.md)
 - [x] Fiscal architecture: [`docs/FISCAL_ARCHITECTURE.md`](docs/FISCAL_ARCHITECTURE.md)
-- [ ] Demo video (2–5 min) — record against the live demo script above
-- [ ] Deployed public URL — attach after hosting
+- [x] Demo video (2–5 min): [`docs/demo/clearance-demo.mp4`](docs/demo/clearance-demo.mp4)
 
 ## Deploy
 
 ```bash
-# Vercel
-bunx vercel
+# Vercel (already live)
+bunx vercel --prod
 
 # Docker
 docker build -t clearance .
 docker run -p 3000:3000 -e CLEARANCE_AUDIT_KEY=change-me clearance
 ```
+
+Production URL: **https://clearance-sand.vercel.app**
 
 For durable multi-instance production, replace the JSON store with Postgres/Turso and put `data/` on a volume only for single-node demos.
 

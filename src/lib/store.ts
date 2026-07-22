@@ -13,7 +13,12 @@ import type {
   UsageEvent,
 } from "./types";
 
-const DATA_DIR = path.join(process.cwd(), "data");
+// Local: ./data — Vercel/serverless: /tmp (writable). Override with CLEARANCE_DATA_DIR.
+const DATA_DIR =
+  process.env.CLEARANCE_DATA_DIR ||
+  (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+    ? path.join("/tmp", "clearance-data")
+    : path.join(process.cwd(), "data"));
 const DATA_FILE = path.join(DATA_DIR, "clearance-store.json");
 
 function hashKey(raw: string): string {
