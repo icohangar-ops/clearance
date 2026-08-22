@@ -107,7 +107,7 @@ bunx vercel --prod
 |-------|----------------|
 | UI | Next.js 15 App Router, Manrope + Fraunces, server-rendered console |
 | API | Route handlers under `/api/*` |
-| Governance | CHP R0 + adversarial findings + lock progression (`src/lib/chp.ts`) |
+| Governance | `@cubiczan/chp` Profile B gate + Clearance adapter (`src/lib/chp.ts`) |
 | Memory | Namespace retrieval; Backboard-ready via `BACKBOARD_API_KEY` |
 | Persistence | JSON store (`./data` locally, `/tmp` on Vercel) |
 | Audit | HMAC-SHA256 signature-chained JSONL export |
@@ -180,11 +180,17 @@ For durable multi-instance production, replace the JSON store with Postgres/Turs
 | GitHub (Cubiczan) | https://github.com/Cubiczan/clearance |
 | Codeberg | https://codeberg.org/cubiczan/clearance |
 
+## CHP dependency
+
+Depends on **[`@cubiczan/chp`](https://www.npmjs.com/package/@cubiczan/chp)** (`^0.1.1`) for Profile B capital-gate evaluation (`evaluateGate` / `approveHuman`). Clearance keeps a thin adapter in `src/lib/chp.ts` for org policy, blocked vendors, and HITL wiring.
+
+See also the promoted example: [icohangar-ops/chp-examples](https://github.com/icohangar-ops/chp-examples) → `typescript/clearance-gate/`.
+
 ## Cubiczan stack lineage
 
 Clearance productizes patterns from:
 
-- [consensus-hardening-protocol](https://github.com/icohangar-ops/consensus-hardening-protocol) — CHP locks
+- [@cubiczan/chp](https://www.npmjs.com/package/@cubiczan/chp) / [consensus-hardening-protocol](https://github.com/icohangar-ops/consensus-hardening-protocol) — CHP locks
 - [cleanmandate](https://github.com/icohangar-ops/cleanmandate) — payment mandates
 - [agent-observability](https://github.com/icohangar-ops/agent-observability) — spend visibility
 - [meshcfo](https://github.com/icohangar-ops/meshcfo) — auditable finance agents

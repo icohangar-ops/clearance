@@ -41,6 +41,7 @@ export function evaluateClearance(
     );
     const actionAllowed = policy.allowedActions.includes(action);
     const withinSpendCap = agent.spendUsedCents + amountCents <= agent.spendCapCents;
+    const spendRemainingCents = Math.max(0, agent.spendCapCents - agent.spendUsedCents);
 
     const chp = runChpGate({
       action,
@@ -51,6 +52,7 @@ export function evaluateClearance(
       blocked,
       actionAllowed,
       withinSpendCap,
+      spendRemainingCents,
       memoryHints: memoryHits.map((m) => m.text),
     });
 
@@ -158,7 +160,16 @@ export function resolveApproval(
     const agent = store.agents.find((a) => a.id === clearance.agentId);
     if (!agent) throw new Error("Agent not found");
 
-    const outcome = applyHumanDecision(decision, notes);
+    const policy =
+      store.policies.find((p) => p.orgId === agent.orgId) ?? store.policies[0];
+    const outcome = applyHumanDecision(decision, notes, {
+      action: clearance.action,
+      amountCents: clearance.amountCents,
+      vendor: clearance.vendor,
+      policyMaxAuto: policy.maxAutoApproveCents,
+      spendRemainingCents: Math.max(0, agent.spendCapCents - agent.spendUsedCents),
+      approver: actor,
+    });
     clearance.status = outcome.status;
     clearance.chpState = outcome.state;
     clearance.rationale = outcome.rationale;
