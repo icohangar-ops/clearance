@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test src/lib/safe-navigation.test.ts",
     "demo:reset": "curl -s -X POST http://localhost:3000/api/demo -H 'content-type: application/json' -d '{\"action\":\"reset\"}'",
     "demo:record": "bun scripts/record-demo.mjs"
   },

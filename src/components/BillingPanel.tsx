@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { navigateToSafeCheckoutUrl } from "@/lib/safe-navigation";
 import type { PlanId } from "@/lib/types";
 
 export function BillingPanel({
@@ -26,7 +27,8 @@ export function BillingPanel({
     const json = await res.json();
     setBusy(null);
     if (json.url) {
-      window.location.href = json.url;
+      if (navigateToSafeCheckoutUrl(json.url)) return;
+      setMessage("Checkout URL was rejected — expected an HTTPS Stripe Checkout link.");
       return;
     }
     setMessage(json.message || `Plan set to ${plan} (${json.mode})`);
