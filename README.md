@@ -15,6 +15,16 @@ Galuxium Nexus V2 submission — a production-shaped SaaS control plane where ev
 
 ---
 
+<!-- product-screenshots:start -->
+## Product screenshots
+
+Demo control-plane console with agent counts, approvals, spend, audit status, and the clearance-request form.
+
+![clearance product interface](docs/screenshots/product-overview.png)
+
+Captured from the [live UI](https://clearance-sand.vercel.app/dashboard) on October 2, 2026. No payment, generation, or other action was submitted to create this capture.
+<!-- product-screenshots:end -->
+
 ## Market friction
 
 Companies are shipping AI agents into support, sales, research, and finance — but finance still has no control plane. Spend is opaque, approvals live in Slack folklore, and audit trails die in chat logs.
